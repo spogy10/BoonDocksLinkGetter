@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="491.0" prefWidth="620.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <ChoiceBox fx:id="season" layoutX="104.0" layoutY="83.0" prefWidth="150.0" />
+      <ChoiceBox fx:id="episode" layoutX="405.0" layoutY="83.0" prefWidth="150.0" />
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="146.0" layoutY="37.0" prefHeight="25.0" prefWidth="67.0" text="Season" />
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="446.0" layoutY="37.0" prefHeight="25.0" prefWidth="67.0" text="Episode" />
+      <Button fx:id="go" layoutX="252.0" layoutY="189.0" mnemonicParsing="false" onAction="#Go" prefHeight="57.0" prefWidth="117.0" text="Go" />
+      <TextField fx:id="result" layoutX="67.0" layoutY="372.0" prefHeight="74.0" prefWidth="487.0" />
+      <TextField fx:id="tittle" alignment="CENTER" layoutX="67.0" layoutY="289.0" prefHeight="34.0" prefWidth="487.0" />
+   </children>
+</Pane>
