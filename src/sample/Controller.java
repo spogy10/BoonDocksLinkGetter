@@ -2,12 +2,16 @@ package sample;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -26,20 +30,38 @@ public class Controller implements Initializable{
     private void Go(){
         result.setText("");
         tittle.setText("");
-        try {
-            int season = this.season.getValue(), episode = this.episode.getValue();
-            String[] tittleAndUrl = Main.getLink(season, episode);
+        int season = this.season.getValue(), episode = this.episode.getValue();
+        Service<String[]> service = new Service<>() {
+            @Override
+            protected Task<String[]> createTask() {
+                return new Main.GetWebData(season, episode);
+            }
+        };
+        service.restart();
+        service.setOnSucceeded(e -> {
+            String[] tittleAndUrl = service.getValue();
             tittle.setText(tittleAndUrl[0]);
             result.setText(tittleAndUrl[1]);
+            StringSelection selection = new StringSelection(tittleAndUrl[1]);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(selection, selection);
             String s = season + " " + episode;
-            FileWriter writer = new FileWriter(FILENAME);
-            writer.write(s);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            FileWriter writer = null;
+            try {
+                writer = new FileWriter(FILENAME);
+                writer.write(s);
+                writer.flush();
+                writer.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                result.setText("Error");
+            }
+        });
+        service.setOnFailed(e -> {
             result.setText("Error");
-        }
+        });
+
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,7 +13,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class Main extends Application {
+public class Main extends Application { //todo: have a loading bar/loading circle
 
     private static final String URL1 = "https://www.watchcartoononline.io/boondocks-season-";
     private static final String URL1_4 = "https://www.watchcartoononline.io/the-boondocks-season-";
@@ -39,61 +40,77 @@ public class Main extends Application {
             return URL1+season+URL2+episode;
     }
 
-    public static String[] getLink(int season, int episode) throws IOException {
-        String link = "";
-        final String frameID = "frameNewAnimeuploads0";
-        String[] results = getFrameSource(frameID, season, episode);
-        String url = results[1];
-        link = actualGetLinkMethod(url);
+
+
+    public static class GetWebData extends Task {
+        private final int season, episode;
+
+        public GetWebData(int season, int episode){
+            this.season = season;
+            this.episode = episode;
+        }
+
+        @Override
+        protected String[] call() throws Exception {
+            return getLink(season, episode);
+        }
+
+        private static String[] getLink(int season, int episode) throws IOException {
+            String link = "";
+            final String frameID = "frameNewAnimeuploads0";
+            String[] results = getFrameSource(frameID, season, episode);
+            String url = results[1];
+            link = actualGetLinkMethod(url);
 
 
 
-        return new String[]{results[0], link};
-    }
+            return new String[]{results[0], link};
+        }
 
-    private static String actualGetLinkMethod(String url) throws IOException {
-        String webCode = webCode(url);
-        String first = "jw.setup";
-        String second = "file: \"";
-        String end = "\"";
-        webCode = webCode.substring(webCode.indexOf(first));
-        webCode = webCode.substring(webCode.indexOf(second) + second.length());
-        return webCode.substring(0, webCode.indexOf(end));
-    }
+        private static String actualGetLinkMethod(String url) throws IOException {
+            String webCode = webCode(url);
+            String first = "jw.setup";
+            String second = "file: \"";
+            String end = "\"";
+            webCode = webCode.substring(webCode.indexOf(first));
+            webCode = webCode.substring(webCode.indexOf(second) + second.length());
+            return webCode.substring(0, webCode.indexOf(end));
+        }
 
-    public static String[] getFrameSource(String id, int season, int episode) throws IOException {
-        String webCode = webCode(Main.URL(season, episode));
-        String beginningTitle = "<title>";
-        String endingTitle = " |";
-        webCode = webCode.substring(webCode.indexOf(beginningTitle) + beginningTitle.length());
-        String tittle = webCode.substring(0, webCode.indexOf(endingTitle));
-        String beginning = "src=\"";
-        String ending = "\"";
-        
-        webCode = webCode.substring(webCode.indexOf(id));
-        webCode = webCode.substring(webCode.indexOf(beginning) + beginning.length());
-        return new String[]{tittle, webCode.substring(0, webCode.indexOf(ending))};
-    }
+        private static String[] getFrameSource(String id, int season, int episode) throws IOException {
+            String webCode = webCode(Main.URL(season, episode));
+            String beginningTitle = "<title>";
+            String endingTitle = " |";
+            webCode = webCode.substring(webCode.indexOf(beginningTitle) + beginningTitle.length());
+            String tittle = webCode.substring(0, webCode.indexOf(endingTitle));
+            String beginning = "src=\"";
+            String ending = "\"";
 
-    public static String webCode(String urlString) throws IOException {
-        InputStream is = null;
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection in = (HttpURLConnection) url.openConnection();
-            in.addRequestProperty("User-Agent", "Foo?");
+            webCode = webCode.substring(webCode.indexOf(id));
+            webCode = webCode.substring(webCode.indexOf(beginning) + beginning.length());
+            return new String[]{tittle, webCode.substring(0, webCode.indexOf(ending))};
+        }
 
-            in.setReadTimeout(0 /* milliseconds */);
-            in.setConnectTimeout(0 /* milliseconds */);
-            in.setRequestMethod("GET");
-            in.setDoInput(true);
-            in.connect();
+        private static String webCode(String urlString) throws IOException {
+            InputStream is = null;
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection in = (HttpURLConnection) url.openConnection();
+                in.addRequestProperty("User-Agent", "Foo?");
 
-            is = in.getInputStream();
+                in.setReadTimeout(0 /* milliseconds */);
+                in.setConnectTimeout(0 /* milliseconds */);
+                in.setRequestMethod("GET");
+                in.setDoInput(true);
+                in.connect();
 
-            return IOUtils.toString(is, "UTF-8");
-        } finally {
-            if (is != null) {
-                is.close();
+                is = in.getInputStream();
+
+                return IOUtils.toString(is, "UTF-8");
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
             }
         }
     }
