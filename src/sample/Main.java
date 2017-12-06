@@ -44,6 +44,7 @@ public class Main extends Application { //todo: have a loading bar/loading circl
 
     public static class GetWebData extends Task {
         private final int season, episode;
+        private final double maxValue= 1;
 
         public GetWebData(int season, int episode){
             this.season = season;
@@ -55,20 +56,20 @@ public class Main extends Application { //todo: have a loading bar/loading circl
             return getLink(season, episode);
         }
 
-        private static String[] getLink(int season, int episode) throws IOException {
-            String link = "";
+        private String[] getLink(int season, int episode) throws IOException {
+            updateProgress(0, maxValue);
             final String frameID = "frameNewAnimeuploads0";
-            String[] results = getFrameSource(frameID, season, episode);
+            String[] results = getFrameSource(frameID, season, episode); updateProgress(0.5, maxValue);
             String url = results[1];
-            link = actualGetLinkMethod(url);
+            String link = actualGetLinkMethod(url); updateProgress(1, maxValue);
 
 
 
             return new String[]{results[0], link};
         }
 
-        private static String actualGetLinkMethod(String url) throws IOException {
-            String webCode = webCode(url);
+        private String actualGetLinkMethod(String url) throws IOException {
+            String webCode = webCode(url); updateProgress(0.75, maxValue);
             String first = "jw.setup";
             String second = "file: \"";
             String end = "\"";
@@ -77,8 +78,9 @@ public class Main extends Application { //todo: have a loading bar/loading circl
             return webCode.substring(0, webCode.indexOf(end));
         }
 
-        private static String[] getFrameSource(String id, int season, int episode) throws IOException {
+        private String[] getFrameSource(String id, int season, int episode) throws IOException {
             String webCode = webCode(Main.URL(season, episode));
+            updateProgress(0.25, maxValue);
             String beginningTitle = "<title>";
             String endingTitle = " |";
             webCode = webCode.substring(webCode.indexOf(beginningTitle) + beginningTitle.length());
@@ -91,7 +93,7 @@ public class Main extends Application { //todo: have a loading bar/loading circl
             return new String[]{tittle, webCode.substring(0, webCode.indexOf(ending))};
         }
 
-        private static String webCode(String urlString) throws IOException {
+        private String webCode(String urlString) throws IOException {
             InputStream is = null;
             try {
                 URL url = new URL(urlString);
