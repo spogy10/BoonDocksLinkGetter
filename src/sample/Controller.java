@@ -66,6 +66,7 @@ public class Controller implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tittle.setEditable(false);
         result.setEditable(false);
         File file = new File(FILENAME);
         if(file.exists() && file.isFile()){
